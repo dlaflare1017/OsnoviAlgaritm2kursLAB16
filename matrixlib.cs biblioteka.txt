@@ -1,0 +1,98 @@
+// MatrixLib.cs
+using System;
+
+namespace MyMatrixLib
+{
+    /// <summary>Утилиты для работы с целочисленными матрицами.</summary>
+    public static class MatrixUtils
+    {
+        /// <summary>Считывает целое число с проверкой по предикату.</summary>
+        public static int ReadInt(string prompt, Func<int, bool>? validator = null, string? invalidMsg = null)
+        {
+            while (true)
+            {
+                Console.Write(prompt);
+                if (!int.TryParse(Console.ReadLine(), out var v))
+                {
+                    Console.WriteLine("Введите целое число.");
+                    continue;
+                }
+
+                if (validator == null || validator(v)) return v;
+
+                Console.WriteLine(invalidMsg ?? "Недопустимое значение.");
+            }
+        }
+
+        /// <summary>Считывает матрицу n×m по строкам.</summary>
+        public static int[,] ReadIntMatrix(int n, int m)
+        {
+            var a = new int[n, m];
+            Console.WriteLine($"Введите матрицу по строкам (ровно {m} целых чисел в строке, через пробел):");
+
+            for (int i = 0; i < n; i++)
+            {
+                while (true)
+                {
+                    Console.Write($"Строка {i + 1}: ");
+                    var raw = Console.ReadLine() ?? string.Empty;
+                    var parts = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
+                    if (parts.Length != m)
+                    {
+                        Console.WriteLine($"Нужно ровно {m} чисел. Повторите ввод строки.");
+                        continue;
+                    }
+
+                    bool ok = true;
+                    for (int j = 0; j < m; j++)
+                    {
+                        if (!int.TryParse(parts[j], out a[i, j]))
+                        {
+                            ok = false;
+                            break;
+                        }
+                    }
+
+                    if (ok) break;
+                    Console.WriteLine("Ошибка: вводите целые числа.");
+                }
+            }
+
+            return a;
+        }
+
+        /// <summary>Находит индекс столбца с минимальной суммой и саму сумму.</summary>
+        public static (int ColumnIndex, long Sum) FindColumnWithMinSum(int[,] a)
+        {
+            int n = a.GetLength(0);
+            int m = a.GetLength(1);
+
+            long bestSum = long.MaxValue;
+            int bestJ = 0;
+
+            for (int j = 0; j < m; j++)
+            {
+                long s = 0;
+                for (int i = 0; i < n; i++)
+                    s += a[i, j];
+
+                if (s < bestSum)
+                {
+                    bestSum = s;
+                    bestJ = j;
+                }
+            }
+
+            return (bestJ, bestSum);
+        }
+
+        /// <summary>Печатает столбец матрицы (как вектор-столбец).</summary>
+        public static void PrintColumn(int[,] a, int j)
+        {
+            int n = a.GetLength(0);
+            for (int i = 0; i < n; i++)
+                Console.WriteLine(a[i, j]);
+        }
+    }
+}
